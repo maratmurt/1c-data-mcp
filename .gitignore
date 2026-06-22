@@ -1,0 +1,32 @@
+# UT configuration XML dump (too large for git)
+src/cf/
+
+# Local infobase and build artifacts
+build/
+
+# 1C binaries
+*.dt
+*.cf
+*.cfe
+*.epf
+*.erf
+!dist/*.cf
+!dist/*.cfe
+!dist/*.epf
+!dist/*.erf
+
+# Local environment (machine-specific)
+env.json
+.v8-project.json
+
+# Logs and temp
+*.log
+tmp/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Java / Gradle (future server/)
+server/.gradle/
+server/build/
