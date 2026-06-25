@@ -1,0 +1,9 @@
+{
+  "type": "CommonModule",
+  "name": "DataMcp_Общий",
+  "synonym": "Data MCP общий",
+  "context": "server",
+  "serverCall": true,
+  "privileged": false,
+  "returnValuesReuse": "DontUse"
+}

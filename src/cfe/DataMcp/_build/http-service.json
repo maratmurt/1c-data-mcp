@@ -1,0 +1,14 @@
+{
+  "type": "HTTPService",
+  "name": "DataMcp",
+  "synonym": "Data MCP HTTP API",
+  "rootURL": "datamcp",
+  "urlTemplates": {
+    "ping": {
+      "template": "ping",
+      "methods": {
+        "Get": "GET"
+      }
+    }
+  }
+}

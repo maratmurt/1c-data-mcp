@@ -1,0 +1,8 @@
+{
+  "name": "DataMcpReadOnly",
+  "synonym": "Data MCP read only",
+  "comment": "Read-only access for DataMcp HTTP API",
+  "objects": [
+    "HTTPService.DataMcp.URLTemplate.ping.Method.Get: Use"
+  ]
+}

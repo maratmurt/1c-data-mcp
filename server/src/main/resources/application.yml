@@ -1,0 +1,19 @@
+spring:
+  main:
+    web-application-type: none
+  ai:
+    mcp:
+      server:
+        stdio: true
+        name: 1c-data-mcp
+        version: 0.1.0
+        annotation-scanner:
+          enabled: true
+
+datamcp:
+  default-connection: ut
+  connections:
+    - name: ut
+      url: http://localhost/datamcp
+      username: ${ONEC_USER:}
+      password: ${ONEC_PASSWORD:}

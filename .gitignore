@@ -10,10 +10,6 @@ build/
 *.cfe
 *.epf
 *.erf
-!dist/*.cf
-!dist/*.cfe
-!dist/*.epf
-!dist/*.erf
 
 # Local environment (machine-specific)
 env.json
@@ -27,6 +23,10 @@ tmp/
 .DS_Store
 Thumbs.db
 
-# Java / Gradle (future server/)
+# IDE
+.vscode/
+
+# Java / Gradle
 server/.gradle/
 server/build/
+server/bin/
