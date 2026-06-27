@@ -9,13 +9,18 @@ import org.springframework.web.reactive.function.client.WebClientRequestExceptio
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.onec.datamcp.configuration.WebClientConfig;
+import com.onec.datamcp.integration.dto.ApiError;
+import com.onec.datamcp.integration.dto.MetadataSummary;
+import com.onec.datamcp.integration.dto.ObjectDescription;
+import com.onec.datamcp.integration.dto.PagedList;
 import com.onec.datamcp.integration.dto.PingResponse;
 import com.onec.datamcp.integration.dto.PingResult;
 
 @Component
 public class OneCClient {
 
-    private static final Duration TIMEOUT = Duration.ofSeconds(10);
+    private static final Duration PING_TIMEOUT = Duration.ofSeconds(10);
+    private static final Duration METADATA_TIMEOUT = Duration.ofSeconds(120);
 
     private final Map<String, WebClient> webClients;
 
@@ -34,7 +39,7 @@ public class OneCClient {
                     .uri(WebClientConfig.pingPath())
                     .retrieve()
                     .bodyToMono(PingResponse.class)
-                    .block(TIMEOUT);
+                    .block(PING_TIMEOUT);
 
             if (response == null) {
                 return PingResult.failure("Empty response from 1C");
@@ -52,5 +57,97 @@ public class OneCClient {
         } catch (Exception ex) {
             return PingResult.failure(ex.getMessage() == null ? ex.getClass().getSimpleName() : ex.getMessage());
         }
+    }
+
+    public MetadataSummary getMetadataSummary(String connectionName) {
+        WebClient client = requireClient(connectionName);
+        try {
+            MetadataSummary response = client.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path(WebClientConfig.metadataPath())
+                            .queryParam("mode", "summary")
+                            .build())
+                    .retrieve()
+                    .bodyToMono(MetadataSummary.class)
+                    .block(METADATA_TIMEOUT);
+            if (response == null) {
+                throw new IllegalStateException("Empty response from 1C metadata summary");
+            }
+            return response;
+        } catch (WebClientResponseException ex) {
+            throw toApiException(ex);
+        }
+    }
+
+    public PagedList getMetadataList(String connectionName, String types, int offset, int limit) {
+        WebClient client = requireClient(connectionName);
+        try {
+            PagedList response = client.get()
+                    .uri(uriBuilder -> {
+                        var builder = uriBuilder
+                                .path(WebClientConfig.metadataPath())
+                                .queryParam("mode", "list")
+                                .queryParam("offset", offset)
+                                .queryParam("limit", limit);
+                        if (types != null && !types.isBlank()) {
+                            builder.queryParam("types", types);
+                        }
+                        return builder.build();
+                    })
+                    .retrieve()
+                    .bodyToMono(PagedList.class)
+                    .block(METADATA_TIMEOUT);
+            if (response == null) {
+                throw new IllegalStateException("Empty response from 1C metadata list");
+            }
+            return response;
+        } catch (WebClientResponseException ex) {
+            throw toApiException(ex);
+        }
+    }
+
+    public ObjectDescription describeObject(String connectionName, String type, String name) {
+        WebClient client = requireClient(connectionName);
+        try {
+            ObjectDescription response = client.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path(WebClientConfig.objectsDescribePath())
+                            .build(type, name))
+                    .retrieve()
+                    .bodyToMono(ObjectDescription.class)
+                    .block(METADATA_TIMEOUT);
+            if (response == null) {
+                throw new IllegalStateException("Empty response from 1C describe");
+            }
+            return response;
+        } catch (WebClientResponseException.NotFound ex) {
+            ApiError error = ex.getResponseBodyAs(ApiError.class);
+            String message = error != null && error.getError() != null
+                    ? error.getError()
+                    : "Object not found: " + type + "." + name;
+            throw new IllegalArgumentException(message);
+        } catch (WebClientResponseException ex) {
+            throw toApiException(ex);
+        }
+    }
+
+    private WebClient requireClient(String connectionName) {
+        WebClient client = webClients.get(connectionName);
+        if (client == null) {
+            throw new IllegalArgumentException("Connection not configured: " + connectionName);
+        }
+        return client;
+    }
+
+    private static RuntimeException toApiException(WebClientResponseException ex) {
+        if (ex.getStatusCode().value() == 401) {
+            return new IllegalStateException("Unauthorized (401): check ONEC_USER and ONEC_PASSWORD");
+        }
+        ApiError error = ex.getResponseBodyAs(ApiError.class);
+        if (error != null && error.getError() != null) {
+            return new IllegalStateException(error.getError());
+        }
+        return new IllegalStateException(
+                "HTTP " + ex.getStatusCode().value() + ": " + ex.getStatusText());
     }
 }

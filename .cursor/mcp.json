@@ -1,14 +1,20 @@
 {
   "mcpServers": {
     "1c-data": {
-      "command": "java",
+      "command": "C:\\Program Files\\Java\\jdk-17\\bin\\java.exe",
       "args": [
+        "-Dfile.encoding=UTF-8",
+        "-Dstdout.encoding=UTF-8",
+        "-Dstderr.encoding=UTF-8",
+        "-Dsun.jnu.encoding=UTF-8",
         "-jar",
-        "${workspaceFolder}/server/build/libs/1c-data-mcp-server.jar"
+        "server/build/libs/1c-data-mcp-server.jar"
       ],
+      "cwd": "${workspaceFolder}",
       "env": {
         "ONEC_USER": "datamcp",
-        "ONEC_PASSWORD": "1"
+        "ONEC_PASSWORD": "1",
+        "JAVA_TOOL_OPTIONS": "-Dfile.encoding=UTF-8"
       }
     }
   }

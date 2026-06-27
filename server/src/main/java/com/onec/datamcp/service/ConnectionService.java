@@ -22,6 +22,20 @@ public class ConnectionService {
         this.oneCClient = oneCClient;
     }
 
+    public String resolveConnection(String connection) {
+        if (connection != null && !connection.isBlank()) {
+            if (properties.getConnections().stream().noneMatch(c -> c.getName().equals(connection))) {
+                throw new IllegalArgumentException("Connection not configured: " + connection);
+            }
+            return connection;
+        }
+        String defaultName = properties.getDefaultConnection();
+        if (defaultName == null || defaultName.isBlank()) {
+            throw new IllegalArgumentException("No connection specified and default-connection is not set");
+        }
+        return defaultName;
+    }
+
     public List<ConnectionInfo> listConnections() {
         List<ConnectionInfo> result = new ArrayList<>();
         String defaultName = properties.getDefaultConnection();

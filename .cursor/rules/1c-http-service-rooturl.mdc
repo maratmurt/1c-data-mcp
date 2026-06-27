@@ -1,0 +1,44 @@
+---
+description: RootURL HTTP-сервисов 1С — односложный, без слеша
+globs: src/**/HTTPServices/**,**/*http-service.json,scripts/patch-*-vrd.ps1,server/**/WebClientConfig.java,docs/**
+alwaysApply: false
+---
+
+# HTTP-сервис 1С: корневой URL
+
+`RootURL` HTTP-сервиса **односложный** — один сегмент пути, **без `/`**.
+
+Версионирование и вложенность — в **шаблонах URL** (`URLTemplate`), не в `RootURL`.
+
+## Правильно
+
+```xml
+<RootURL>datamcp</RootURL>
+```
+
+```json
+{ "rootURL": "datamcp", "urlTemplates": { "ping": { "template": "v1/ping" } } }
+```
+
+Полный путь: `/hs/datamcp/v1/ping`
+
+## Неправильно
+
+```xml
+<RootURL>datamcp/v1</RootURL>
+```
+
+```xml
+<service rootUrl="datamcp/v1" .../>
+```
+
+## Где проверять
+
+- `src/cfe/**/HTTPServices/*.xml` — `<RootURL>`
+- `*_build/http-service.json` — `rootURL`
+- `scripts/patch-*-vrd.ps1` — `rootUrl` в `default.vrd`
+- Java-клиент: пути вида `/hs/{rootURL}/{template}`
+
+## Зачем
+
+Составной `RootURL` (`datamcp/v1`) хуже стыкуется с публикацией в `default.vrd` и путает границу между корнем сервиса и шаблонами маршрутов.

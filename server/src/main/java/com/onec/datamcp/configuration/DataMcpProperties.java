@@ -9,6 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class DataMcpProperties {
 
     private String defaultConnection;
+    private CacheProperties cache = new CacheProperties();
     private List<ConnectionProperties> connections = new ArrayList<>();
 
     public String getDefaultConnection() {
@@ -17,6 +18,14 @@ public class DataMcpProperties {
 
     public void setDefaultConnection(String defaultConnection) {
         this.defaultConnection = defaultConnection;
+    }
+
+    public CacheProperties getCache() {
+        return cache;
+    }
+
+    public void setCache(CacheProperties cache) {
+        this.cache = cache;
     }
 
     public List<ConnectionProperties> getConnections() {

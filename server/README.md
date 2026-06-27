@@ -29,9 +29,11 @@ Edit `src/main/resources/application.yml` or override via environment variables:
 ```yaml
 datamcp:
   default-connection: ut
+  cache:
+    metadata-ttl-minutes: 30
   connections:
     - name: ut
-      url: http://localhost:8080/ut
+      url: http://localhost:8081/datamcp
       username: ${ONEC_USER:}
       password: ${ONEC_PASSWORD:}
 ```
@@ -39,8 +41,8 @@ datamcp:
 ## Run (STDIO)
 
 ```bash
-set ONEC_USER=Admin
-set ONEC_PASSWORD=
+set ONEC_USER=datamcp
+set ONEC_PASSWORD=1
 java -jar build/libs/1c-data-mcp-server.jar
 ```
 
@@ -53,7 +55,26 @@ java -jar build/libs/1c-data-mcp-server.jar
 | Tool | Description |
 |------|-------------|
 | `list_connections` | Returns configured connections with ping reachability |
+| `metadata` | Configuration summary: name, version, object counts by type |
+| `find_objects` | Search metadata objects by substring in name/synonym (cached index) |
+| `describe_object` | Structural description of an object, e.g. `Catalog.Номенклатура` |
+
+All tools accept optional `connection` parameter (defaults to `datamcp.default-connection`).
+
+## Metadata cache
+
+`find_objects` builds an in-memory flat index from 1C on first use per connection. TTL is controlled by `datamcp.cache.metadata-ttl-minutes` (default 30). `describe_object` always calls 1C directly.
 
 ## 1C extension
 
 See `../src/cfe/DataMcp/` and project `docs/deployment.md`.
+
+## Tests
+
+Integration tests require a running published base:
+
+```bash
+set ONEC_USER=datamcp
+set ONEC_PASSWORD=1
+gradle test --tests com.onec.datamcp.MetadataIntegrationTest
+```

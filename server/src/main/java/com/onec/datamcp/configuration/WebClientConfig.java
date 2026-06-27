@@ -15,6 +15,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class WebClientConfig {
 
     private static final String PING_PATH = "/hs/datamcp/v1/ping";
+    private static final String METADATA_PATH = "/hs/datamcp/v1/metadata";
+    private static final String OBJECTS_SEARCH_PATH = "/hs/datamcp/v1/objects/search";
+    private static final String OBJECTS_DESCRIBE_PATH = "/hs/datamcp/v1/objects/{type}/{name}";
 
     @Bean
     public Map<String, WebClient> oneCWebClients(DataMcpProperties properties) {
@@ -27,6 +30,18 @@ public class WebClientConfig {
 
     public static String pingPath() {
         return PING_PATH;
+    }
+
+    public static String metadataPath() {
+        return METADATA_PATH;
+    }
+
+    public static String objectsSearchPath() {
+        return OBJECTS_SEARCH_PATH;
+    }
+
+    public static String objectsDescribePath() {
+        return OBJECTS_DESCRIBE_PATH;
     }
 
     private WebClient createClient(ConnectionProperties connection) {

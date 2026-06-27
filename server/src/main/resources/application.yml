@@ -1,6 +1,7 @@
 spring:
   main:
     web-application-type: none
+    banner-mode: off
   ai:
     mcp:
       server:
@@ -12,8 +13,10 @@ spring:
 
 datamcp:
   default-connection: ut
+  cache:
+    metadata-ttl-minutes: 30
   connections:
     - name: ut
-      url: http://localhost/datamcp
+      url: http://localhost:8081/datamcp
       username: ${ONEC_USER:}
       password: ${ONEC_PASSWORD:}

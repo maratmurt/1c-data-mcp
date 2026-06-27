@@ -5,7 +5,7 @@ param(
 
 $serviceBlock = @'
 	<httpServices publishByDefault="true" publishExtensionsByDefault="true">
-		<service name="DataMcp" rootUrl="datamcp/v1" enable="true"
+		<service name="DataMcp" rootUrl="datamcp" enable="true"
 				reuseSessions="autouse" sessionMaxAge="20"/>
 	</httpServices>
 '@

@@ -5,7 +5,25 @@
   "rootURL": "datamcp",
   "urlTemplates": {
     "ping": {
-      "template": "ping",
+      "template": "v1/ping",
+      "methods": {
+        "Get": "GET"
+      }
+    },
+    "metadata": {
+      "template": "v1/metadata",
+      "methods": {
+        "Get": "GET"
+      }
+    },
+    "objects_search": {
+      "template": "v1/objects/search",
+      "methods": {
+        "Get": "GET"
+      }
+    },
+    "objects_type_name": {
+      "template": "v1/objects/{type}/{name}",
       "methods": {
         "Get": "GET"
       }

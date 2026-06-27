@@ -29,18 +29,23 @@ powershell.exe -NoProfile -File .cursor/skills/db-update/scripts/db-update.ps1 `
 
 ```powershell
 powershell.exe -NoProfile -File .cursor/skills/web-publish/scripts/web-publish.ps1 `
-  -V8Path $v8 -InfoBasePath $ib -UserName "<user>" -AppName ut -Port 80 -ApachePath "C:\Apache24"
+  -V8Path $v8 -InfoBasePath $ib -UserName "<user>" -AppName datamcp -ApachePath "C:\Apache24"
 ```
 
-If Apache is not installed, install Apache 2.4 manually or fix `tools/apache24` per `web-publish` skill.
+Publication URL example: `http://localhost:8081/datamcp`
 
-## 4. Verify ping
+HTTP service root URL in metadata: `datamcp` (templates under `v1/...`).
+
+## 4. Verify endpoints
 
 ```bash
-curl -u "user:password" http://localhost/ut/hs/datamcp/v1/ping
+curl -u datamcp:1 http://localhost:8081/datamcp/hs/datamcp/v1/ping
+curl -u datamcp:1 http://localhost:8081/datamcp/hs/datamcp/v1/metadata
+curl -u datamcp:1 "http://localhost:8081/datamcp/hs/datamcp/v1/objects/search?q=номенклатур&limit=5"
+curl -u datamcp:1 "http://localhost:8081/datamcp/hs/datamcp/v1/objects/Catalog/Номенклатура"
 ```
 
-Expected response:
+Expected ping response:
 
 ```json
 {
@@ -49,6 +54,19 @@ Expected response:
   "version": "11.4.2.132"
 }
 ```
+
+Metadata summary includes `counts` for `Catalog`, `Document`, `Enum`, `InformationRegister`, `AccumulationRegister`.
+
+## Role rights
+
+Role `DataMcpReadOnly` must grant GET on URL templates:
+
+- `ping`
+- `metadata`
+- `objects_search`
+- `objects_type_name`
+
+Assign the role to the HTTP API user (`datamcp` in test setup).
 
 ## Compatibility notes
 
