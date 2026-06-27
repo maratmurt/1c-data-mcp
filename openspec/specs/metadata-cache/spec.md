@@ -40,3 +40,14 @@ The server SHALL NOT cache `describe_object` responses on the Java side in this 
 - **WHEN** `describe_object` is called
 - **THEN** the server calls `GET /hs/datamcp/v1/objects/{type}/{name}` on 1C directly
 - **AND** does not serve a cached describe response
+
+### Requirement: Cache entries isolated between connections
+
+The metadata index cache SHALL maintain separate entries per connection name without cross-contamination.
+
+#### Scenario: Independent cache per connection
+
+- **WHEN** `find_objects` is called for connection `ut` and builds the index cache
+- **AND** `find_objects` is subsequently called for connection `ut-copy` with the same search query
+- **THEN** the server builds or uses a separate cache entry keyed by `ut-copy`
+- **AND** cache state for `ut` is not modified by operations on `ut-copy`

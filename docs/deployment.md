@@ -79,6 +79,38 @@ Role `DataMcpReadOnly` must grant GET on URL templates:
 
 Assign the role to the HTTP API user (`datamcp` in test setup).
 
+## Multi-connection smoke (optional)
+
+Publish the same infobase under a second app name and port to verify routing without a second configuration:
+
+```powershell
+$v8 = "C:\Program Files\1cv8\8.3.27.1644\bin"
+$ib = "c:\Users\marat\PROJECTS\1c-data-mcp\build\ib"
+
+powershell.exe -NoProfile -File .cursor/skills/web-publish/scripts/web-publish.ps1 `
+  -V8Path $v8 -InfoBasePath $ib -UserName "datamcp" `
+  -AppName datamcp2 -Port 9090 -ApachePath "C:\Apache24"
+```
+
+Second publication URL: `http://localhost:9090/datamcp2`
+
+Add to local MCP `application.yml` (do not commit credentials):
+
+```yaml
+datamcp:
+  connections:
+    - name: ut-copy
+      url: http://localhost:9090/datamcp2
+      username: ${ONEC_USER:}
+      password: ${ONEC_PASSWORD:}
+```
+
+Manual MCP smoke in Cursor:
+
+1. `list_connections` — `ut` and `ut-copy` both `reachable: true`
+2. `metadata` with `connection=ut-copy`
+3. `execute_query` with `connection=ut-copy` and `ВЫБРАТЬ ПЕРВЫЕ 10` from `Справочник.Номенклатура`
+
 ## Compatibility notes
 
 - Extension `ConfigurationExtensionCompatibilityMode` must not exceed host config `CompatibilityMode` (UT 11.4 uses `Version8_3_10`).

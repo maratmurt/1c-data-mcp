@@ -1,16 +1,3 @@
-spring:
-  main:
-    web-application-type: none
-    banner-mode: off
-  ai:
-    mcp:
-      server:
-        stdio: true
-        name: 1c-data-mcp
-        version: 0.1.0
-        annotation-scanner:
-          enabled: true
-
 datamcp:
   default-connection: ut
   cache:
@@ -24,6 +11,10 @@ datamcp:
       url: http://localhost:8081/datamcp
       username: ${ONEC_USER:}
       password: ${ONEC_PASSWORD:}
+    - name: unreachable
+      url: http://localhost:59999/datamcp
+      username: test
+      password: test
     - name: ut-copy
       url: http://localhost:9090/datamcp2
       username: ${ONEC_USER:}

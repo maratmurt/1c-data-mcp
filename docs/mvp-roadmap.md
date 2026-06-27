@@ -47,11 +47,14 @@ Metadata **не монолит** — summary + find + describe, иначе ко�
 - Двухконтурная безопасность: грубый фильтр на Java + обязательная проверка в 1С перед `Запрос.Выполнить()`
 - Тест: `ВЫБРАТЬ ПЕРВЫЕ 10` из Номенклатуры
 
-### Этап 4 — Multi-connection
+### Этап 4 — Multi-connection ✅
 
-- `ConnectionResolver` (или аналог в `ConnectionService`)
-- Параметр `connection` во всех MCP tools
-- `default-connection` в `application.yml` (каркас уже есть)
+- `ConnectionService` — routing по имени + `default-connection`
+- Параметр `connection` во всех MCP tools (уже с этапов 2–3)
+- Тесты: unit (`ConnectionServiceTest`, `MetadataServiceCacheTest`), integration (`ConnectionIntegrationTest`)
+- Документация: multi-connection config, вторая публикация для smoke
+
+OpenSpec change `multi-connection` — заархивирован (`openspec/changes/archive/2026-06-27-multi-connection/`).
 
 ### Этап 5 — Docker
 
