@@ -26,6 +26,9 @@ Thumbs.db
 # IDE
 .vscode/
 
+# Docker local credentials
+docker/.env
+
 # Java / Gradle
 server/.gradle/
 server/build/

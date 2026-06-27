@@ -1,0 +1,8 @@
+**/.gradle
+**/build
+build/ib
+.git
+.cursor
+openspec/changes
+*.md
+!docker/README.md

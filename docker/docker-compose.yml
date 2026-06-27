@@ -1,0 +1,15 @@
+services:
+  mcp-server:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: 1c-data-mcp-server
+    stdin_open: true
+    tty: false
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      ONEC_USER: ${ONEC_USER}
+      ONEC_PASSWORD: ${ONEC_PASSWORD}
+      JAVA_TOOL_OPTIONS: "-Dfile.encoding=UTF-8"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

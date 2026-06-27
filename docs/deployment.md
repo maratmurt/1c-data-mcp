@@ -1,5 +1,7 @@
 # Deployment: DataMcp extension
 
+For containerized MCP server setup (Java side only), see [docker/README.md](../docker/README.md).
+
 ## Prerequisites
 
 - 1C:Enterprise 8.3 platform (Designer)

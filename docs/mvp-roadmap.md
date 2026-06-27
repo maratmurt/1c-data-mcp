@@ -56,12 +56,17 @@ Metadata **не монолит** — summary + find + describe, иначе ко�
 
 OpenSpec change `multi-connection` — заархивирован (`openspec/changes/archive/2026-06-27-multi-connection/`).
 
-### Этап 5 — Docker
+### Этап 5 — Docker ✅
 
-- `Dockerfile` (server)
-- `docker-compose` (server + env vars)
-- Документация: установка расширения + публикация
-- Опционально: HTTP MCP transport (STREAMABLE) для удалённого доступа
+- `docker/Dockerfile` (multi-stage, server)
+- `docker/docker-compose.yml` (server + env vars)
+- `application-docker.yml` (baked URLs via `host.docker.internal`)
+- Документация: `docker/README.md`, cross-link из `deployment.md`
+- Cursor: `.cursor/mcp.json.docker` (`docker run -i`)
+- Smoke: `docker build` + Cursor `list_connections`, `execute_query` ✅
+- Опционально (отложено): HTTP MCP transport (STREAMABLE) для удалённого доступа
+
+OpenSpec change `docker` — заархивирован (`openspec/changes/archive/2026-06-27-docker/`).
 
 ---
 

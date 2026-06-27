@@ -56,6 +56,16 @@ java -jar build/libs/1c-data-mcp-server.jar
 
 `.cursor/mcp.json` is preconfigured. Set `ONEC_USER` and `ONEC_PASSWORD` in the `env` section, then reload MCP servers in Cursor.
 
+## Docker dev setup
+
+Optional containerized workflow — no local JDK required after image build:
+
+```bash
+docker build -f docker/Dockerfile -t 1c-data-mcp-server .
+```
+
+See [docker/README.md](../docker/README.md) for `docker run`, `docker compose`, and Cursor configuration (`.cursor/mcp.json.docker`).
+
 ## MCP tools
 
 | Tool | Description |
