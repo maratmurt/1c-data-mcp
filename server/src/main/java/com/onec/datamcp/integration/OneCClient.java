@@ -8,6 +8,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import com.onec.datamcp.configuration.DataMcpProperties;
 import com.onec.datamcp.configuration.WebClientConfig;
 import com.onec.datamcp.integration.dto.ApiError;
 import com.onec.datamcp.integration.dto.MetadataSummary;
@@ -15,6 +16,8 @@ import com.onec.datamcp.integration.dto.ObjectDescription;
 import com.onec.datamcp.integration.dto.PagedList;
 import com.onec.datamcp.integration.dto.PingResponse;
 import com.onec.datamcp.integration.dto.PingResult;
+import com.onec.datamcp.integration.dto.QueryRequest;
+import com.onec.datamcp.integration.dto.QueryResult;
 
 @Component
 public class OneCClient {
@@ -23,9 +26,11 @@ public class OneCClient {
     private static final Duration METADATA_TIMEOUT = Duration.ofSeconds(120);
 
     private final Map<String, WebClient> webClients;
+    private final DataMcpProperties dataMcpProperties;
 
-    public OneCClient(Map<String, WebClient> oneCWebClients) {
+    public OneCClient(Map<String, WebClient> oneCWebClients, DataMcpProperties dataMcpProperties) {
         this.webClients = oneCWebClients;
+        this.dataMcpProperties = dataMcpProperties;
     }
 
     public PingResult ping(String connectionName) {
@@ -128,6 +133,33 @@ public class OneCClient {
             throw new IllegalArgumentException(message);
         } catch (WebClientResponseException ex) {
             throw toApiException(ex);
+        }
+    }
+
+    public QueryResult executeQuery(String connectionName, QueryRequest request) {
+        WebClient client = requireClient(connectionName);
+        Duration timeout = Duration.ofSeconds(dataMcpProperties.getQuery().getTimeoutSeconds());
+        try {
+            QueryResult response = client.post()
+                    .uri(WebClientConfig.queryPath())
+                    .bodyValue(request)
+                    .retrieve()
+                    .bodyToMono(QueryResult.class)
+                    .block(timeout);
+            if (response == null) {
+                throw new IllegalStateException("Empty response from 1C query");
+            }
+            return response;
+        } catch (WebClientResponseException.BadRequest ex) {
+            ApiError error = ex.getResponseBodyAs(ApiError.class);
+            String message = error != null && error.getError() != null
+                    ? error.getError()
+                    : "Query validation failed";
+            throw new IllegalArgumentException(message);
+        } catch (WebClientResponseException ex) {
+            throw toApiException(ex);
+        } catch (WebClientRequestException ex) {
+            throw new IllegalStateException("Query request failed: " + ex.getMessage(), ex);
         }
     }
 

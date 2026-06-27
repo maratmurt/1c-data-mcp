@@ -28,7 +28,7 @@
 
 OpenSpec change `skeleton` — завершён и заархивирован (`openspec/changes/archive/2026-06-25-skeleton/`).
 
-### Этап 2 — Metadata
+### Этап 2 — Metadata ✅
 
 - 1С: `MetadataSvc` (summary + find + describe)
 - HTTP: `GET /metadata`, `GET /find`, `POST /describe`
@@ -38,7 +38,7 @@ OpenSpec change `skeleton` — завершён и заархивирован (`
 
 Metadata **не монолит** — summary + find + describe, иначе контекст агента переполнится.
 
-### Этап 3 — Query
+### Этап 3 — Query ✅
 
 - 1С: `QuerySvc` + `SecuritySvc`
 - HTTP: `POST /query`

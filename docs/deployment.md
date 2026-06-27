@@ -43,6 +43,9 @@ curl -u datamcp:1 http://localhost:8081/datamcp/hs/datamcp/v1/ping
 curl -u datamcp:1 http://localhost:8081/datamcp/hs/datamcp/v1/metadata
 curl -u datamcp:1 "http://localhost:8081/datamcp/hs/datamcp/v1/objects/search?q=номенклатур&limit=5"
 curl -u datamcp:1 "http://localhost:8081/datamcp/hs/datamcp/v1/objects/Catalog/Номенклатура"
+curl -u datamcp:1 -X POST -H "Content-Type: application/json; charset=utf-8" \
+  -d '{"query":"ВЫБРАТЬ ПЕРВЫЕ 10\n    Номенклатура.Наименование\nИЗ\n    Справочник.Номенклатура КАК Номенклатура"}' \
+  http://localhost:8081/datamcp/hs/datamcp/v1/query
 ```
 
 Expected ping response:
@@ -65,6 +68,14 @@ Role `DataMcpReadOnly` must grant GET on URL templates:
 - `metadata`
 - `objects_search`
 - `objects_type_name`
+- `query` (POST)
+
+## Query security
+
+- Java `QueryGuard`: max length, must start with `ВЫБРАТЬ`, forbidden tokens
+- 1C `SecuritySvc`: authoritative validation before `Запрос.Выполнить()`
+- Execution in privileged mode after validation
+- Audit: SHA-256 hash of query text (no full text in logs)
 
 Assign the role to the HTTP API user (`datamcp` in test setup).
 
@@ -72,7 +83,3 @@ Assign the role to the HTTP API user (`datamcp` in test setup).
 
 - Extension `ConfigurationExtensionCompatibilityMode` must not exceed host config `CompatibilityMode` (UT 11.4 uses `Version8_3_10`).
 - Borrowed language `Русский` must reference host UUID in `ExtendedConfigurationObject`.
-
-## Assign role
-
-Assign role `DataMcpReadOnly` to the HTTP service user, or use a user with sufficient read rights.

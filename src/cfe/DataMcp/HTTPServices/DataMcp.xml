@@ -123,6 +123,33 @@
 					</Method>
 				</ChildObjects>
 			</URLTemplate>
+			<URLTemplate uuid="a7b8c9d0-e1f2-4345-a678-9abcdef01234">
+				<Properties>
+					<Name>query</Name>
+					<Synonym>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>query</v8:content>
+						</v8:item>
+					</Synonym>
+					<Template>v1/query</Template>
+				</Properties>
+				<ChildObjects>
+					<Method uuid="b8c9d0e1-f2a3-4456-b789-abcdef012345">
+						<Properties>
+							<Name>Post</Name>
+							<Synonym>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Post</v8:content>
+								</v8:item>
+							</Synonym>
+							<HTTPMethod>POST</HTTPMethod>
+							<Handler>queryPost</Handler>
+						</Properties>
+					</Method>
+				</ChildObjects>
+			</URLTemplate>
 		</ChildObjects>
 	</HTTPService>
 </MetaDataObject>

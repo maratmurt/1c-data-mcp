@@ -10,6 +10,7 @@ public class DataMcpProperties {
 
     private String defaultConnection;
     private CacheProperties cache = new CacheProperties();
+    private QueryProperties query = new QueryProperties();
     private List<ConnectionProperties> connections = new ArrayList<>();
 
     public String getDefaultConnection() {
@@ -26,6 +27,14 @@ public class DataMcpProperties {
 
     public void setCache(CacheProperties cache) {
         this.cache = cache;
+    }
+
+    public QueryProperties getQuery() {
+        return query;
+    }
+
+    public void setQuery(QueryProperties query) {
+        this.query = query;
     }
 
     public List<ConnectionProperties> getConnections() {

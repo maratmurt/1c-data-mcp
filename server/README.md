@@ -58,8 +58,23 @@ java -jar build/libs/1c-data-mcp-server.jar
 | `metadata` | Configuration summary: name, version, object counts by type |
 | `find_objects` | Search metadata objects by substring in name/synonym (cached index) |
 | `describe_object` | Structural description of an object, e.g. `Catalog.Номенклатура` |
+| `execute_query` | Execute read-only 1C query (must include `ПЕРВЫЕ N`) |
 
 All tools accept optional `connection` parameter (defaults to `datamcp.default-connection`).
+
+## Query limits
+
+`execute_query` validates query text on Java (max length, forbidden tokens) and in 1C (SecuritySvc: `ВЫБРАТЬ` only, `ПЕРВЫЕ N` required). Configure via `datamcp.query`:
+
+```yaml
+datamcp:
+  query:
+    max-length: 10000
+    max-rows: 1000
+    timeout-seconds: 30
+```
+
+Audit logs record query SHA-256 hash only (not full query text).
 
 ## Metadata cache
 
@@ -77,4 +92,5 @@ Integration tests require a running published base:
 set ONEC_USER=datamcp
 set ONEC_PASSWORD=1
 gradle test --tests com.onec.datamcp.MetadataIntegrationTest
+gradle test --tests com.onec.datamcp.QueryIntegrationTest
 ```

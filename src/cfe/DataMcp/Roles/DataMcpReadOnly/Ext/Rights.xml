@@ -34,4 +34,11 @@
             <value>true</value>
         </right>
     </object>
+    <object>
+        <name>HTTPService.DataMcp.URLTemplate.query.Method.Post</name>
+        <right>
+            <name>Use</name>
+            <value>true</value>
+        </right>
+    </object>
 </Rights>

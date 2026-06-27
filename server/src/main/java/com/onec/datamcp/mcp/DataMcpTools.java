@@ -9,27 +9,33 @@ import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onec.datamcp.integration.dto.MetadataSummary;
 import com.onec.datamcp.integration.dto.ObjectDescription;
 import com.onec.datamcp.integration.dto.ObjectRef;
+import com.onec.datamcp.integration.dto.QueryResult;
 import com.onec.datamcp.service.ConnectionInfo;
 import com.onec.datamcp.service.ConnectionService;
 import com.onec.datamcp.service.MetadataService;
+import com.onec.datamcp.service.QueryService;
 
 @Component
 public class DataMcpTools {
 
     private final ConnectionService connectionService;
     private final MetadataService metadataService;
+    private final QueryService queryService;
     private final ObjectMapper objectMapper;
 
     public DataMcpTools(
             ConnectionService connectionService,
             MetadataService metadataService,
+            QueryService queryService,
             ObjectMapper objectMapper) {
         this.connectionService = connectionService;
         this.metadataService = metadataService;
+        this.queryService = queryService;
         this.objectMapper = objectMapper;
     }
 
@@ -98,6 +104,34 @@ public class DataMcpTools {
         } catch (Exception ex) {
             return toErrorJson(ex);
         }
+    }
+
+    @Tool(
+            name = "execute_query",
+            description = "Execute a read-only 1C query language SELECT statement and return rows")
+    public String executeQuery(
+            @ToolParam(description = "Query text in 1C query language, must include ПЕРВЫЕ N") String query,
+            @ToolParam(description = "Connection name (uses default if omitted)", required = false)
+            String connection,
+            @ToolParam(description = "JSON object of query parameters", required = false)
+            String parameters) throws JsonProcessingException {
+        try {
+            String resolved = connectionService.resolveConnection(connection);
+            String normalizedQuery = McpStringEncoding.normalize(query);
+            Map<String, Object> params = parseParameters(parameters);
+            QueryResult result = queryService.executeQuery(resolved, normalizedQuery, params);
+            return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result.toSummaryMap());
+        } catch (Exception ex) {
+            return toErrorJson(ex);
+        }
+    }
+
+    private Map<String, Object> parseParameters(String parameters) throws JsonProcessingException {
+        if (parameters == null || parameters.isBlank()) {
+            return Map.of();
+        }
+        return objectMapper.readValue(
+                McpStringEncoding.normalize(parameters), new TypeReference<Map<String, Object>>() {});
     }
 
     private String toErrorJson(Exception ex) throws JsonProcessingException {

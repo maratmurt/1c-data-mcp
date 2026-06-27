@@ -15,6 +15,10 @@ datamcp:
   default-connection: ut
   cache:
     metadata-ttl-minutes: 30
+  query:
+    max-length: 10000
+    max-rows: 1000
+    timeout-seconds: 30
   connections:
     - name: ut
       url: http://localhost:8081/datamcp

@@ -27,6 +27,12 @@
       "methods": {
         "Get": "GET"
       }
+    },
+    "query": {
+      "template": "v1/query",
+      "methods": {
+        "Post": "POST"
+      }
     }
   }
 }

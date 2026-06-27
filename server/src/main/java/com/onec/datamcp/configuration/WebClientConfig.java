@@ -18,6 +18,7 @@ public class WebClientConfig {
     private static final String METADATA_PATH = "/hs/datamcp/v1/metadata";
     private static final String OBJECTS_SEARCH_PATH = "/hs/datamcp/v1/objects/search";
     private static final String OBJECTS_DESCRIBE_PATH = "/hs/datamcp/v1/objects/{type}/{name}";
+    private static final String QUERY_PATH = "/hs/datamcp/v1/query";
 
     @Bean
     public Map<String, WebClient> oneCWebClients(DataMcpProperties properties) {
@@ -42,6 +43,10 @@ public class WebClientConfig {
 
     public static String objectsDescribePath() {
         return OBJECTS_DESCRIBE_PATH;
+    }
+
+    public static String queryPath() {
+        return QUERY_PATH;
     }
 
     private WebClient createClient(ConnectionProperties connection) {
