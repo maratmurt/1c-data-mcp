@@ -3,6 +3,11 @@ src/cf/
 
 # Local infobase and build artifacts
 build/
+dist/
+
+# OneScript dependencies (opm install from packagedef)
+oscript_modules/
+*.ospx
 
 # 1C binaries
 *.dt
@@ -10,14 +15,26 @@ build/
 *.cfe
 *.epf
 *.erf
+*.1CD
 
 # Local environment (machine-specific)
 env.json
 .v8-project.json
+.env
+
+# vanessa-runner
+lastUploadedCommit.txt
 
 # Logs and temp
 *.log
+vrunner-*.log
 tmp/
+
+# Session notes (local agent state)
+session-notes.md
+
+# Test reports
+allure-results/
 
 # OS
 .DS_Store
@@ -25,9 +42,12 @@ Thumbs.db
 
 # IDE
 .vscode/
+.idea/
+*.iml
 
 # Docker local credentials
 docker/.env
+docker/datamcp-local.yml
 
 # Java / Gradle
 server/.gradle/

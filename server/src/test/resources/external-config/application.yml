@@ -1,0 +1,7 @@
+datamcp:
+  default-connection: smoke-test
+  connections:
+    - name: smoke-test
+      url: http://host.docker.internal:9999/datamcp-smoke
+      username: ${ONEC_USER:}
+      password: ${ONEC_PASSWORD:}

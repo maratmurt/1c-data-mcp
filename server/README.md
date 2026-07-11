@@ -36,11 +36,13 @@ datamcp:
       url: http://localhost:8081/datamcp
       username: ${ONEC_USER:}
       password: ${ONEC_PASSWORD:}
-    - name: prod
-      url: http://prod-server:8081/datamcp
-      username: ${ONEC_PROD_USER:}
-      password: ${ONEC_PROD_PASSWORD:}
+    - name: reports
+      url: http://localhost:8081/reports
+      username: ${ONEC_USER:}
+      password: ${ONEC_PASSWORD:}
 ```
+
+For Docker, use `docker/datamcp-local.yml` (see [docker/README.md](../docker/README.md)) — same format with `host.docker.internal` URLs.
 
 The AI agent calls `list_connections` to discover configured bases, then passes `connection` to other tools. Omitted `connection` always resolves to `default-connection` (not the last used name).
 
@@ -125,19 +127,19 @@ gradle test --tests com.onec.datamcp.QueryIntegrationTest
 
 ### Multi-connection smoke (optional, second publication)
 
-Publish the same infobase twice (`datamcp` on :8081, `datamcp2` on :9090). See `docs/deployment.md`.
+Publish a second infobase on the same Apache port under a different path (e.g. `reports` at `/reports` on :8081). For legacy configs without extension support, embed the `DataMcp` HTTP service objects in the main configuration. See `docs/deployment.md`.
 
 ```bash
 set ONEC_MULTI_CONNECTION=true
 gradle test --tests com.onec.datamcp.MetadataMultiConnectionIntegrationTest
 ```
 
-Local MCP config example (not committed):
+Local MCP config example (not committed; Docker: copy from `docker/datamcp-local.yml.example`):
 
 ```yaml
 connections:
-  - name: ut-copy
-    url: http://localhost:9090/datamcp2
+  - name: reports
+    url: http://localhost:8081/reports
     username: ${ONEC_USER:}
     password: ${ONEC_PASSWORD:}
 ```

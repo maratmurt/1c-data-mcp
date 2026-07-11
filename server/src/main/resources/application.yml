@@ -24,7 +24,7 @@ datamcp:
       url: http://localhost:8081/datamcp
       username: ${ONEC_USER:}
       password: ${ONEC_PASSWORD:}
-    - name: ut-copy
-      url: http://localhost:9090/datamcp2
+    - name: reports
+      url: http://localhost:8081/reports
       username: ${ONEC_USER:}
       password: ${ONEC_PASSWORD:}

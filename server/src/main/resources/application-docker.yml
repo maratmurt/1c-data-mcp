@@ -4,7 +4,3 @@ datamcp:
       url: http://host.docker.internal:8081/datamcp
       username: ${ONEC_USER:}
       password: ${ONEC_PASSWORD:}
-    - name: ut-copy
-      url: http://host.docker.internal:9090/datamcp2
-      username: ${ONEC_USER:}
-      password: ${ONEC_PASSWORD:}

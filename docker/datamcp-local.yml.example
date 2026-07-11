@@ -1,0 +1,11 @@
+datamcp:
+  default-connection: ut
+  connections:
+    - name: ut
+      url: http://host.docker.internal:8081/datamcp
+      username: ${ONEC_USER:}
+      password: ${ONEC_PASSWORD:}
+    - name: reports
+      url: http://host.docker.internal:8081/reports
+      username: ${ONEC_USER:}
+      password: ${ONEC_PASSWORD:}

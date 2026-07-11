@@ -7,9 +7,11 @@
         "-i",
         "--rm",
         "--add-host=host.docker.internal:host-gateway",
+        "-v", "C:/Users/marat/PROJECTS/1c-data-mcp/docker/datamcp-local.yml:/config/application.yml:ro",
         "-e", "ONEC_USER",
         "-e", "ONEC_PASSWORD",
         "-e", "SPRING_PROFILES_ACTIVE=docker",
+        "-e", "SPRING_CONFIG_ADDITIONAL_LOCATION=optional:file:/config/",
         "-e", "JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8",
         "1c-data-mcp-server:latest"
       ],

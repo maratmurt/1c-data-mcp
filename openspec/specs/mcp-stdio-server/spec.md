@@ -173,5 +173,6 @@ The MCP server SHALL support running inside a Docker container with STDIO transp
 #### Scenario: list_connections reachable from container
 
 - **WHEN** the AI agent calls `list_connections` from a Docker-based MCP session
-- **AND** 1C HTTP service is published on the host at configured ports
+- **AND** 1C HTTP services are published on the host with external config listing `ut` and `reports`
 - **THEN** connection `ut` reports `reachable: true`
+- **AND** connection `reports` reports `reachable: true` when that publication is configured on the host
