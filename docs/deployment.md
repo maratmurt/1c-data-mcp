@@ -117,6 +117,59 @@ Manual MCP smoke in Cursor:
 2. `metadata` with `connection=reports`
 3. `find_objects` with `connection=reports` and a query matching that configuration's metadata
 
+## Streamable HTTP (LAN access)
+
+Java MCP server can expose the same tools over Streamable HTTP for remote AI agents (Codex, Claude Desktop, ChatGPT).
+
+Prerequisites:
+
+- 1C publication running (see sections above)
+- Java MCP server started with profile `streamable`
+- Bearer token configured on server and client
+
+Start server (host machine):
+
+```powershell
+$env:ONEC_USER = "datamcp"
+$env:ONEC_PASSWORD = "1"
+$env:DATAMCP_TOKEN = "your-secret-token"
+$env:SPRING_PROFILES_ACTIVE = "streamable"
+java -jar server/build/libs/1c-data-mcp-server.jar
+```
+
+Or Docker: `docker compose up -d` from `docker/` (see [docker/README.md](../docker/README.md)).
+
+MCP URL for LAN clients: `http://<server-ip>:8090/mcp`
+
+Cursor (HTTP): copy `.cursor/mcp.json.streamable` to `.cursor/mcp.json`, set Bearer token to match `DATAMCP_TOKEN`, reload MCP in Settings.
+
+Auth notes:
+
+- POST `/mcp` requires `Authorization: Bearer <DATAMCP_TOKEN>`.
+- GET `/mcp` for SSE may use `Mcp-Session-Id` without Bearer (session from authenticated `initialize`).
+- `keep-alive-interval: 5s` in `application-streamable.yml` maintains the SSE stream.
+
+Firewall (Windows, inbound TCP 8090):
+
+```powershell
+New-NetFirewallRule -DisplayName "1c-data-mcp" -Direction Inbound -Protocol TCP -LocalPort 8090 -Action Allow
+```
+
+Codex config example: [codex-config.example.toml](codex-config.example.toml)
+
+Smoke:
+
+```bash
+set DATAMCP_TOKEN=your-secret-token
+python scripts/mcp-streamable-probe.py
+python scripts/mcp-cursor-handshake-probe.py
+```
+
+Security notes:
+
+- HTTP without TLS — acceptable for trusted LAN only; use reverse proxy with TLS for wider exposure
+- Rotate `DATAMCP_TOKEN` if leaked; token grants access to all MCP tools including `execute_query`
+
 ## Compatibility notes
 
 - Extension `ConfigurationExtensionCompatibilityMode` must not exceed host config `CompatibilityMode` (UT 11.4 uses `Version8_3_10`).

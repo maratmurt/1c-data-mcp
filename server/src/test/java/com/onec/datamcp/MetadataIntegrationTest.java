@@ -3,8 +3,10 @@ package com.onec.datamcp;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.onec.datamcp.integration.dto.MetadataSummary;
 import com.onec.datamcp.integration.dto.ObjectDescription;
@@ -12,6 +14,8 @@ import com.onec.datamcp.integration.dto.ObjectRef;
 import com.onec.datamcp.service.MetadataService;
 
 @SpringBootTest
+@ActiveProfiles("test")
+@EnabledIfEnvironmentVariable(named = "ONEC_INTEGRATION", matches = "true")
 class MetadataIntegrationTest {
 
     @Autowired

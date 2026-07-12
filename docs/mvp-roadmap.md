@@ -68,6 +68,28 @@ OpenSpec change `multi-connection` — заархивирован (`openspec/cha
 
 OpenSpec change `docker` — заархивирован (`openspec/changes/archive/2026-06-27-docker/`).
 
+### Этап 6 — Streamable HTTP ✅
+
+- Spring profile `streamable`: MCP Streamable HTTP на `:8090/mcp`, bind `0.0.0.0`, protocol `STREAMABLE`
+- Bearer auth: `DATAMCP_TOKEN` (POST); GET SSE по `Mcp-Session-Id` без Bearer (Cursor)
+- `keep-alive-interval: 5s` для SSE listener
+- Spring AI **1.1.7** + `spring-ai-starter-mcp-server-webflux`
+- Docker: `docker compose up` (только HTTP, без STDIO в compose)
+- Cursor: HTTP `.cursor/mcp.json.streamable` (не `mcp.json.docker`)
+- Документация: Codex config, LAN/firewall notes
+- Smoke: `scripts/mcp-streamable-probe.py`, `scripts/mcp-cursor-handshake-probe.py`, unit/integration tests
+
+Зафиксированные решения (этап 6):
+
+| # | Решение |
+|---|---------|
+| 1 | **Deployment** — LAN (`0.0.0.0:8090`) |
+| 2 | **Auth** — Bearer token (`DATAMCP_TOKEN`) на POST |
+| 3 | **Transport** — STREAMABLE (stateful sessions + SSE GET) |
+| 4 | **Cursor** — HTTP URL в `.cursor/mcp.json` (STDIO через `mcp.json.docker` опционально) |
+
+OpenSpec change `streamable` — заархивирован (`openspec/changes/archive/2026-07-11-streamable/`).
+
 ---
 
 ## MCP Tools → HTTP mapping (целевой)
@@ -85,8 +107,8 @@ OpenSpec change `docker` — заархивирован (`openspec/changes/archi
 ## Архитектура (целевая)
 
 ```
-Cursor / AI Agent
-       │ MCP (STDIO)
+Cursor / Codex / Claude / ChatGPT
+       │ MCP (STDIO или Streamable HTTP)
        ▼
 Java MCP Server (Spring Boot)
   mcp tools → service → integration (WebClient) → security / audit
@@ -98,6 +120,13 @@ Java MCP Server (Spring Boot)
        ▼
   Справочники, документы, регистры
 ```
+
+Transports:
+
+| Profile | Transport | Use case |
+|---------|-----------|----------|
+| default | STDIO | Local agents, Cursor via `docker run -i` |
+| `streamable` | HTTP `:8090/mcp` | LAN agents (Codex, Claude Desktop, Cursor HTTP) |
 
 ---
 

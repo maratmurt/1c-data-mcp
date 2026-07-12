@@ -1,18 +1,28 @@
+name: 1c-data-mcp
+
+# STDIO mode is NOT a compose service — use `docker run -i --rm` (see README / mcp.json.docker).
+# Keeping stdin MCP out of compose prevents orphan containers that never exit.
+
 services:
-  mcp-server:
+  mcp-server-http:
     build:
       context: ..
       dockerfile: docker/Dockerfile
     image: 1c-data-mcp-server
-    stdin_open: true
+    container_name: 1c-data-mcp-http
+    restart: unless-stopped
+    stdin_open: false
     tty: false
+    ports:
+      - "8090:8090"
     volumes:
       - ./datamcp-local.yml:/config/application.yml:ro
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      SPRING_PROFILES_ACTIVE: streamable,docker
       SPRING_CONFIG_ADDITIONAL_LOCATION: optional:file:/config/
       ONEC_USER: ${ONEC_USER}
       ONEC_PASSWORD: ${ONEC_PASSWORD}
+      DATAMCP_TOKEN: ${DATAMCP_TOKEN}
       JAVA_TOOL_OPTIONS: "-Dfile.encoding=UTF-8"
     extra_hosts:
       - "host.docker.internal:host-gateway"

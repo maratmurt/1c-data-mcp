@@ -68,20 +68,30 @@ docker run -i --rm `
 
 On Windows, use an absolute host path for `-v` in Cursor — see `.cursor/mcp.json.docker`.
 
-## Run with docker compose
+## Run with docker compose (HTTP only)
+
+Compose only runs the Streamable HTTP server. STDIO must use `docker run -i --rm` above — putting STDIO in compose left orphan containers that never exited after clients disconnected.
 
 ```bash
 cd docker
 cp datamcp-local.yml.example datamcp-local.yml
 cp .env.example .env
 # edit datamcp-local.yml and .env
-docker compose build
-docker compose run --rm mcp-server
+docker compose up --build -d
 ```
 
-`docker compose run --rm` attaches stdin for STDIO MCP. Use for manual smoke before switching Cursor to Docker.
-
 ## Cursor integration
+
+### HTTP (recommended)
+
+1. Start HTTP server: `docker compose up --build -d` from `docker/` (see Streamable HTTP section below).
+2. Copy `.cursor/mcp.json.streamable` to `.cursor/mcp.json` (or merge the `1c-data` entry).
+3. Set `Authorization: Bearer <DATAMCP_TOKEN>` to match `docker/.env`.
+4. Reload MCP servers in Cursor.
+
+Do **not** copy `.cursor/mcp.json.docker` for HTTP mode — STDIO `docker run -i` spawns a new container on each MCP reconnect.
+
+### STDIO via Docker
 
 1. Build the image (see above).
 2. Copy `datamcp-local.yml.example` to `datamcp-local.yml` and edit connection URLs.
@@ -124,12 +134,56 @@ To add or change connections, edit `docker/datamcp-local.yml` and restart the co
 With 1C published and credentials set:
 
 1. `cp datamcp-local.yml.example datamcp-local.yml` — configure connections
-2. `docker compose run --rm mcp-server` — process starts, waits on stdin
+2. `docker run -i --rm ...` (see above) or Cursor with `mcp.json.docker` — process starts, waits on stdin
 3. In Cursor with `mcp.json.docker`: call `list_connections` → `ut` and `reports` appear with URLs from `datamcp-local.yml`
 4. `find_objects` with `connection=ut` and query `номенклатур` — Cyrillic results confirm UTF-8
 5. `metadata` with `connection=reports` — returns СистемаКомпоновкиДанных summary
 
 Without `datamcp-local.yml`: container starts with baked `application-docker.yml` defaults (single `ut` connection).
+
+## Streamable HTTP mode (LAN)
+
+For remote MCP clients (Codex, Claude Desktop) without STDIO:
+
+```bash
+cd docker
+cp .env.example .env
+# set ONEC_USER, ONEC_PASSWORD, DATAMCP_TOKEN in .env
+docker compose up --build
+```
+
+Endpoint: `http://<host-ip>:8090/mcp` with header `Authorization: Bearer <DATAMCP_TOKEN>`.
+
+Alternative `docker run`:
+
+```bash
+docker run --rm -p 8090:8090 \
+  --add-host=host.docker.internal:host-gateway \
+  -e SPRING_PROFILES_ACTIVE=streamable,docker \
+  -e DATAMCP_TOKEN=your-secret-token \
+  -e ONEC_USER=datamcp \
+  -e ONEC_PASSWORD=your-password \
+  -e JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8 \
+  1c-data-mcp-server
+```
+
+Smoke:
+
+```bash
+set DATAMCP_TOKEN=your-secret-token
+python ../scripts/mcp-streamable-probe.py
+python ../scripts/mcp-cursor-handshake-probe.py
+```
+
+Codex setup: [codex-config.example.toml](../docs/codex-config.example.toml)
+
+Cursor HTTP: [.cursor/mcp.json.streamable](../.cursor/mcp.json.streamable)
+
+| Variable | Description |
+|----------|-------------|
+| `DATAMCP_TOKEN` | Bearer token for MCP HTTP clients |
+
+Container: `1c-data-mcp-http`, `restart: unless-stopped`, port `8090`.
 
 ## Troubleshooting
 
@@ -137,5 +191,9 @@ Without `datamcp-local.yml`: container starts with baked `application-docker.yml
 |---------|-----|
 | `reachable: false` for all connections | Check Apache is running on host; verify `host.docker.internal` resolves (add `--add-host=host.docker.internal:host-gateway`) |
 | Garbled Cyrillic in MCP responses | Ensure `JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8` is set |
-| Cursor shows no tools | Use `docker run -i` (interactive stdin); check container logs on stderr |
+| Cursor shows no tools (STDIO) | Use `docker run -i` (interactive stdin); check container logs on stderr |
+| Cursor `MCP HTTP exchange failed` / `Not connected` | Use HTTP `.cursor/mcp.json.streamable`, not `mcp.json.docker`; reload MCP after `docker compose up`; verify `DATAMCP_TOKEN` matches on server and client |
+| HTTP 401 from MCP clients | Set matching `DATAMCP_TOKEN` on server and client (`bearer_token_env_var` in Codex) |
+| Multiple orphan `1c-data-mcp-server` containers | Stop STDIO containers; use HTTP compose only; remove `docker run -i` from `mcp.json` |
+| LAN client cannot connect | Open Windows Firewall for TCP 8090; verify server binds `0.0.0.0` |
 | Config changes not applied | Restart container; verify `-v` path and `SPRING_CONFIG_ADDITIONAL_LOCATION=optional:file:/config/` |

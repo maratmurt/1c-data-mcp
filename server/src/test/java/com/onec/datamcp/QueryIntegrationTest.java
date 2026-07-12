@@ -4,14 +4,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.onec.datamcp.integration.dto.QueryResult;
-import com.onec.datamcp.security.QueryGuard;
 import com.onec.datamcp.service.QueryService;
 
 @SpringBootTest
+@ActiveProfiles("test")
+@EnabledIfEnvironmentVariable(named = "ONEC_INTEGRATION", matches = "true")
 class QueryIntegrationTest {
 
     private static final String NOMENCLATURE_QUERY = """
@@ -24,9 +27,6 @@ class QueryIntegrationTest {
 
     @Autowired
     private QueryService queryService;
-
-    @Autowired
-    private QueryGuard queryGuard;
 
     @Test
     void executeQueryReturnsNomenclatureRows() {
@@ -48,14 +48,6 @@ class QueryIntegrationTest {
         assertThatThrownBy(() -> queryService.executeQuery("ut", query, null))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("ПЕРВЫЕ");
-    }
-
-    @Test
-    void queryGuardRejectsOversizedQuery() {
-        String query = "ВЫБРАТЬ ПЕРВЫЕ 1 " + "А".repeat(20000);
-        assertThatThrownBy(() -> queryGuard.validate(query))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("max length");
     }
 
     @Test

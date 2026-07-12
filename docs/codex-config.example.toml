@@ -1,0 +1,25 @@
+# Codex MCP configuration example (Streamable HTTP)
+
+Copy relevant section to `~/.codex/config.toml` on the machine running Codex.
+Replace `<server-ip>` with the LAN address of the host running `1c-data-mcp`.
+
+```toml
+[mcp_servers.1c-data]
+url = "http://<server-ip>:8090/mcp"
+bearer_token_env_var = "DATAMCP_TOKEN"
+```
+
+Set the token in your shell before starting Codex:
+
+```bash
+export DATAMCP_TOKEN=your-secret-token
+```
+
+On Windows PowerShell:
+
+```powershell
+$env:DATAMCP_TOKEN = "your-secret-token"
+```
+
+Verify in Codex session with `/mcp` — expect tools:
+`list_connections`, `metadata`, `find_objects`, `describe_object`, `execute_query`.

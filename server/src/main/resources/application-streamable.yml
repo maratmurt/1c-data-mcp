@@ -1,0 +1,24 @@
+spring:
+  main:
+    web-application-type: reactive
+  ai:
+    mcp:
+      server:
+        stdio: false
+        protocol: STREAMABLE
+        name: 1c-data-mcp
+        version: 0.1.0
+        type: SYNC
+        annotation-scanner:
+          enabled: true
+        streamable-http:
+          mcp-endpoint: /mcp
+          keep-alive-interval: 5s
+
+server:
+  port: 8090
+  address: 0.0.0.0
+
+datamcp:
+  mcp-auth:
+    token: ${DATAMCP_TOKEN:}

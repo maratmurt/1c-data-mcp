@@ -58,10 +58,16 @@ The Docker deployment SHALL support mounting an external YAML file into the cont
 #### Scenario: Compose mounts external config
 
 - **WHEN** developer creates `docker/datamcp-local.yml` from `datamcp-local.yml.example`
-- **AND** runs `docker compose run --rm mcp-server`
+- **AND** runs `docker compose up`
 - **THEN** the container mounts the local file read-only at `/config/application.yml`
 - **AND** `SPRING_CONFIG_ADDITIONAL_LOCATION` is set to `optional:file:/config/`
 - **AND** connection settings from the mounted file are used at runtime
+
+#### Scenario: STDIO uses docker run not compose
+
+- **WHEN** developer runs MCP over STDIO
+- **THEN** the documented command is `docker run -i --rm` (with optional `--name 1c-data-mcp-stdio`)
+- **AND** compose does not define a STDIO service (avoids orphan stdin containers)
 
 #### Scenario: Cursor docker run mounts external config
 
@@ -106,3 +112,42 @@ The Docker deployment capability SHALL NOT require external container registry p
 - **WHEN** developer completes Docker setup
 - **THEN** all build and run steps use local `docker build` and `docker run` only
 - **AND** no CI registry push is required for the documented workflow
+
+### Requirement: Docker supports Streamable HTTP mode
+
+The Docker deployment SHALL support running the MCP server in Streamable HTTP mode on port 8090 without requiring stdin (`-i`).
+
+#### Scenario: Docker run with HTTP port
+
+- **WHEN** developer runs `docker run -p 8090:8090 -e SPRING_PROFILES_ACTIVE=streamable,docker -e DATAMCP_TOKEN -e ONEC_USER -e ONEC_PASSWORD 1c-data-mcp-server`
+- **THEN** the container starts the streamable MCP server on port 8090
+- **AND** the MCP endpoint is reachable at `http://<host>:8090/mcp`
+- **AND** stdin is not required
+
+#### Scenario: Compose HTTP service
+
+- **WHEN** developer runs `docker compose up` from `docker/` directory
+- **THEN** the HTTP MCP service `mcp-server-http` starts with port 8090 published
+- **AND** `DATAMCP_TOKEN`, `ONEC_USER`, and `ONEC_PASSWORD` are passed via environment variables
+- **AND** `host.docker.internal` resolves for 1C connections
+- **AND** the service uses `restart: unless-stopped`
+- **AND** no STDIO service is defined in compose (STDIO uses `docker run -i` only)
+
+#### Scenario: Compose does not include STDIO service
+
+- **WHEN** developer runs `docker compose up`
+- **THEN** only the HTTP MCP container starts
+- **AND** orphan STDIO containers are not created by compose
+
+### Requirement: Docker HTTP documentation covers LAN access
+
+The Docker documentation SHALL describe Streamable HTTP mode alongside existing STDIO workflow.
+
+#### Scenario: Developer reads docker README for HTTP mode
+
+- **WHEN** developer reads `docker/README.md`
+- **THEN** instructions cover `docker compose up` and `docker run -p 8090:8090`
+- **AND** instructions list required env vars including `DATAMCP_TOKEN`
+- **AND** instructions note that HTTP mode enables LAN access from remote MCP clients
+- **AND** instructions document Cursor HTTP config (`.cursor/mcp.json` with `url`, not STDIO `docker run -i`)
+- **AND** existing STDIO documentation remains unchanged

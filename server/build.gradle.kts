@@ -19,13 +19,13 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom("org.springframework.ai:spring-ai-bom:1.0.0")
+        mavenBom("org.springframework.ai:spring-ai-bom:1.1.7")
     }
 }
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
-    implementation("org.springframework.ai:spring-ai-starter-mcp-server")
+    implementation("org.springframework.ai:spring-ai-starter-mcp-server-webflux")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("com.fasterxml.jackson.core:jackson-databind")
 

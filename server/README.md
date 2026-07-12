@@ -25,6 +25,7 @@ Edit `src/main/resources/application.yml` or override via environment variables:
 |----------|-------------|
 | `ONEC_USER` | 1C username for Basic Auth |
 | `ONEC_PASSWORD` | 1C password |
+| `DATAMCP_TOKEN` | Bearer token for Streamable HTTP profile (`streamable`) |
 
 ```yaml
 datamcp:
@@ -54,9 +55,43 @@ set ONEC_PASSWORD=1
 java -jar build/libs/1c-data-mcp-server.jar
 ```
 
+## Run (Streamable HTTP, LAN)
+
+For remote AI agents (Codex, Claude Desktop, ChatGPT, Cursor) over the network:
+
+```bash
+set ONEC_USER=datamcp
+set ONEC_PASSWORD=1
+set DATAMCP_TOKEN=your-secret-token
+set SPRING_PROFILES_ACTIVE=streamable
+java -jar build/libs/1c-data-mcp-server.jar
+```
+
+MCP endpoint: `http://<host-ip>:8090/mcp`.
+
+- **POST** requests require `Authorization: Bearer <DATAMCP_TOKEN>`.
+- **GET** SSE (after `initialize`) may omit Bearer if `Mcp-Session-Id` is set — Cursor sends auth only on POST.
+- `keep-alive-interval: 5s` in `application-streamable.yml` keeps the SSE listener alive.
+
+Codex example: [docs/codex-config.example.toml](../docs/codex-config.example.toml)
+
+Cursor HTTP: copy [.cursor/mcp.json.streamable](../.cursor/mcp.json.streamable) to `.cursor/mcp.json` and set matching token. Do **not** use `.cursor/mcp.json.docker` for HTTP — STDIO `docker run -i` spawns orphan containers.
+
+Smoke scripts:
+
+```bash
+set DATAMCP_TOKEN=your-secret-token
+python scripts/mcp-streamable-probe.py
+python scripts/mcp-cursor-handshake-probe.py
+```
+
 ## Cursor integration
 
-`.cursor/mcp.json` is preconfigured. Set `ONEC_USER` and `ONEC_PASSWORD` in the `env` section, then reload MCP servers in Cursor.
+**HTTP (recommended):** start the HTTP container (`docker compose up` from `docker/`) or local JAR with profile `streamable`. Use `.cursor/mcp.json` with `url` + Bearer header (see `.cursor/mcp.json.streamable`).
+
+**STDIO via Docker:** copy `.cursor/mcp.json.docker`, set absolute `-v` path and credentials, use `docker run -i`. Prefer HTTP for a single long-lived container without orphan STDIO instances.
+
+Reload MCP servers in Cursor after config or container changes.
 
 ## Docker dev setup
 
