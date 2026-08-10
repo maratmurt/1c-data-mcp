@@ -1,0 +1,63 @@
+---
+description: Поиск и чтение данных из баз 1С — только через MCP-сервер 1c-data
+alwaysApply: true
+---
+
+# Данные 1С: использовать MCP 1c-data
+
+Для **любого** поиска, чтения и анализа данных в опубликованных базах 1С MUST использовать MCP-сервер **`1c-data`** (`CallMcpTool` / `GetMcpTools`).
+
+## Когда применять
+
+- списки элементов справочников, документов, регистров;
+- запросы на языке запросов 1С;
+- поиск объектов метаданных;
+- проверка доступности подключений;
+- ответы на вопросы «кто», «сколько», «какие», «покажи из базы».
+
+## Порядок работы
+
+1. `GetMcpTools` с `pattern: "1c-data"` — убедиться, что сервер доступен.
+2. `list_connections` — получить список баз и выбрать `connection` (например `ut`, `utlider2020_test`).
+3. Выбрать tool по задаче:
+   - `find_objects` — найти объект метаданных по подстроке;
+   - `describe_object` — структура объекта (`Catalog.…`, `Document.…`);
+   - `execute_query` — выборка данных (`ВЫБРАТЬ ПЕРВЫЕ N …`);
+   - `metadata` — сводка по конфигурации.
+4. Всегда передавать `connection`, если база указана пользователем или не является default.
+
+## Запрещено
+
+- обходить MCP прямыми HTTP-вызовами (`curl`, `urllib`, `http://localhost:8090/mcp`) — если `1c-data` доступен в Cursor;
+- угадывать структуру метаданных без `find_objects` / `describe_object`;
+- использовать Playwright / веб-клиент 1С для выборки данных, если задачу решает `execute_query`.
+
+## Если сервер недоступен
+
+1. Сообщить пользователю, что `1c-data` не подключён.
+2. Проверить `.cursor/mcp.json` и запуск контейнера (`docker compose up -d` в `docker/`).
+3. Только после явного согласования — fallback через HTTP smoke (`scripts/mcp-streamable-probe.py`).
+
+## Примеры
+
+```
+# Список подключений
+list_connections()
+
+# Агенты супервайзера
+execute_query(
+  connection: "utlider2020_test",
+  query: "ВЫБРАТЬ ПЕРВЫЕ 1000 ... ГДЕ Родитель.Наименование = \"Супервайзер Халалмагомедов\""
+)
+
+# Найти справочник
+find_objects(connection: "ut", query: "номенклатур", limit: 10)
+```
+
+## Конфигурация
+
+- MCP endpoint: `http://localhost:8090/mcp` (см. `.cursor/mcp.json`)
+- Подключения к базам: `docker/datamcp-local.yml`
+- Учётные данные 1С: `docker/.env` (`ONEC_USER`, `ONEC_PASSWORD`)
+
+После изменения `datamcp-local.yml` перезапустить контейнер: `docker compose restart mcp-server-http`.
