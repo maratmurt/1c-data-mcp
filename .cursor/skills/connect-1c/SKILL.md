@@ -117,6 +117,27 @@ curl.exe -u $env:ONEC_USER:$env:ONEC_PASSWORD http://localhost:8081/ut/hs/datamc
 
 Ожидается HTTP 200 и `"status": "ok"`. Затем `list_connections`: у нового имени `reachable: true`.
 
+## 4. MCP-клиент в целевом проекте
+
+Сервер `1c-data` должен быть в `.cursor/mcp.json` **целевого** проекта, не только в этом репозитории. Иначе в окне Cursor той базы нет инструментов `list_connections`, `metadata`, `execute_query`.
+
+Если файла нет — создай его. Если есть другие серверы — допиши блок `1c-data`, не удаляя их. URL и заголовок возьми из `.cursor/mcp.json` этого репозитория (`http://localhost:8090/mcp`, `Authorization: Bearer` с тем же токеном, что `DATAMCP_TOKEN` в `docker/.env`).
+
+```json
+{
+  "mcpServers": {
+    "1c-data": {
+      "url": "http://localhost:8090/mcp",
+      "headers": {
+        "Authorization": "Bearer dev-token"
+      }
+    }
+  }
+}
+```
+
+После правки клиент Cursor подхватывает сервер при перезагрузке MCP. Повторно проверь `list_connections` уже из целевого проекта: у нового имени `reachable: true`.
+
 ## Если ping не открывается
 
 | Симптом | Что проверить |
